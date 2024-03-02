@@ -1,6 +1,8 @@
-import mongoose, { ConnectOptions } from 'mongoose';
 import { config } from './configs/config';
 import logger from './configs/logger';
+import mongoose, { ConnectOptions } from 'mongoose';
+import { redisConnection } from './redis/redis.connection';
+
 
 class Database {
    async connect() {
@@ -15,6 +17,7 @@ class Database {
             useNewUrlParser: true, // 
             useUnifiedTopology: true,
          } as ConnectOptions);
+         redisConnection.connection();
          logger.info("Connected to the database successfully");
       } catch (error) {
          logger.error("Error connecting to the database:", error);

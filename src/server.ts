@@ -6,16 +6,20 @@ import hpp from 'hpp';
 import cookierSession from "cookie-session"
 import HTTP_STATUS from 'http-status-codes';
 import compression from 'compression'
-import logger from './configs/logger';
-import { config } from './configs/config';
+
 import { Server } from 'socket.io'
 
-import 'express-async-errors'
 import { createClient } from 'redis';
 import { createAdapter } from '@socket.io/redis-adapter';
-import { routerMain } from './routes/index.routes';
-import { ErrorCustom, IErrorResponse } from './types/error.type';
-import { isNamedExportBindings } from 'typescript';
+
+
+import { routerMain } from '@routes/index.routes';
+
+import 'express-async-errors'
+import { config } from '@config/config';
+import { SocketIOPostHandler } from './sockets/post';
+import logger from '@config/logger';
+import { ErrorCustom, IErrorResponse } from '@interfaces/error.interface';
 
 
 export class SocialServer {
@@ -69,6 +73,9 @@ export class SocialServer {
          if (err instanceof ErrorCustom) {
             res.status(err.statusCode || HTTP_STATUS.INTERNAL_SERVER_ERROR).json(err.serializedErrors())
          }
+         else {
+            res.status(500).json(err)
+         }
          next();
       })
    }
@@ -87,12 +94,14 @@ export class SocialServer {
       return io;
    }
    private sockerIOConnection(io: Server) {
+      const postSocketIO = new SocketIOPostHandler(io)
 
+
+      postSocketIO.listen()
    }
    private startHttpServer(httpServer: http.Server) {
-      logger.info(`Server is running on port ${this.PORT} with process ${process.pid}`)
       httpServer.listen(this.PORT, () => {
-         logger.info(`Server is running on port ${this.PORT}`)
+         logger.info(`Server is running on port ${this.PORT} with process ${process.pid}`)
       })
    }
    private startServer(app: Application) {

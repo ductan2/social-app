@@ -1,24 +1,43 @@
 {
-  "compilerOptions": {
-    "target": "ES2015",
-    "module": "NodeNext",
-    "lib": ["DOM", "ES2015"],
-    "baseUrl": ".",
-    "outDir": "./build",
-    "rootDir": "src",
-    "strict": true,
-    "noImplicitAny": true,
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
-    "moduleResolution": "NodeNext",
-    "esModuleInterop": true,
-    "sourceMap": true,
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
-    "forceConsistentCasingInFileNames": true,
-    "allowSyntheticDefaultImports": true,
-    "pretty": true,
-    "resolveJsonModule": true,
-    
-  }
+   "compilerOptions": {
+      "target": "es2015",
+      "module": "commonjs",
+      "lib": ["DOM", "ES2015"],
+      "baseUrl": ".",
+      "outDir": "./build",
+      "rootDir": ".",
+      "strict": true,
+      "noImplicitAny": true,
+      "noUnusedLocals": false,
+      "noUnusedParameters": false,
+      "moduleResolution": "node",
+      "esModuleInterop": true,
+      "sourceMap": true,
+      "experimentalDecorators": true,
+      "emitDecoratorMetadata": true,
+      "forceConsistentCasingInFileNames": true,
+      "allowSyntheticDefaultImports": true,
+      "pretty": true,
+      "resolveJsonModule": true,
+      "plugins": [
+         { "transform": "typescript-transform-paths" },
+         {
+            "transform": "typescript-transform-paths",
+            "afterDeclarations": true
+         }
+      ],
+      "paths": {
+         "@controllers/*": ["src/controllers/*"],
+         "@models/*": ["src/models/*"],
+         "@services/*": ["src/services/*"],
+         "@utils/*": ["src/utils/*"],
+         "@middlewares/*": ["src/middlewares/*"],
+         "@config/*": ["src/configs/*"],
+         "@interfaces/*": ["src/interfaces/*"],
+         "@root/*": ["src/*"],
+         "@routes/*": ["src/routes/*"],
+         "@redis/*": ["src/redis/*"],
+         "@queues/*": ["src/queues/*"],
+      }
+   }
 }
