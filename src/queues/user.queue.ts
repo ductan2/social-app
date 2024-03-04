@@ -1,6 +1,6 @@
 
 
-import { BaseQueue } from "./base.queue";
+import { BaseQueue } from "@queues/base.queue";
 import { userWorker } from "@root/workers/user.worker";
 
 class UserQueue extends BaseQueue {

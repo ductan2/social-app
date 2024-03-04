@@ -6,6 +6,7 @@ class SocialApp {
    public initialize() {
       config.cloudinaryConfig()
       database.connect()
+      config.validateConfig()
       const app = express()
       const server = new SocialServer(app)
       server.start();

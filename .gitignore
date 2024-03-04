@@ -137,9 +137,19 @@ dist
 .webpack/
 
 # Optional stylelint cache
-
+node_modules
+*.log
+.DS_Store
+dist
+build
 # SvelteKit build / generate output
 .svelte-kit
 .package-lock.json
 # End of https://www.toptal.com/developers/gitignore/api/node
 1
+#other 
+node_modules
+*.log
+.DS_Store
+dist
+build

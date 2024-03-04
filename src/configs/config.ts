@@ -16,6 +16,10 @@ class Config {
    public API_SECRET: string | undefined
    public JWT_SECRET: string | undefined
    public JWT_EXPIRATION: string | undefined
+   public SENDER_EMAIL: string | undefined
+   public SENDER_PASSWORD: string | undefined
+   public SENDGRID_API_KEY: string | undefined
+   public SENDGRID_SENDER: string | undefined
    constructor() {
       this.DATABASE_URL = process.env.DATABASE_URL || '';
       this.PORT = process.env.PORT || '';
@@ -29,6 +33,10 @@ class Config {
       this.API_SECRET = process.env.API_SECRET || '';
       this.JWT_SECRET = process.env.JWT_SECRET || '';
       this.JWT_EXPIRATION = process.env.JWT_EXPIRATION || '';
+      this.SENDER_EMAIL = process.env.SENDER_EMAIL || '';
+      this.SENDER_PASSWORD = process.env.SENDER_PASSWORD || '';
+      // this.SENDGRID_API_KEY = process.env.SENDGRID_API_KEY || '';
+      // this.SENDGRID_SENDER = process.env.SENDGRID_SENDER || '';
    }
    public validateConfig() {
       for (const [key, value] of Object.entries(this)) {

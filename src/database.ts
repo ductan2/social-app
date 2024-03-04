@@ -1,8 +1,8 @@
 import { config } from './configs/config';
-import logger from './configs/logger';
 import mongoose, { ConnectOptions } from 'mongoose';
 import { redisConnection } from './redis/redis.connection';
-
+import Logger from 'bunyan';
+const logger : Logger = config.createLogger('Database');
 
 class Database {
    async connect() {

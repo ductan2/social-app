@@ -61,7 +61,7 @@ export class UserCache extends BaseCache {
          await this.client.ZADD('user', { score: parseInt(userUID, 10), value: `${key}` });
          await this.client.HSET(`users:${key}`, dataToSave);
       } catch (error) {
-
+         throw new InternalServerError('Error while saving user to cache')
       }
    }
    public async getUserFromaCache(userId: string) {
@@ -71,7 +71,6 @@ export class UserCache extends BaseCache {
             await this.client.connect();
          }
          const user: IUserDocument = await this.client.HGETALL(`users:${userId}`) as unknown as IUserDocument;
-         console.log("🚀 ~ UserCache ~ getUserFromaCache ~ user:", user)
          user.createdAt = new Date(Helpers.parseJson(`${user.createdAt}`));
          user.postsCount = Helpers.parseJson(`${user.postsCount}`);
          user.blocked = Helpers.parseJson(`${user.blocked}`);

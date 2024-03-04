@@ -11,6 +11,8 @@ class AuthRouter {
       this.router.post('/register', authController.register);
       this.router.post('/login', authController.login);
       this.router.get('/logout', authController.logout);
+      this.router.post('/forgot-password', authController.forgotPassword);
+      this.router.post("/reset-password/:token", authController.resetPassword);
       this.router.get('/me', authMiddleware.verifyToken, authMiddleware.checkAuthentication, authController.currentUser)
       return this.router;
    }

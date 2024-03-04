@@ -1,7 +1,9 @@
-import logger from "@config/logger";
+
+import Logger from "bunyan";
 import { BaseCache } from "./base.cache";
+import { config } from "@config/config";
 
-
+const logger: Logger = config.createLogger('RedisConnection')
 class RedisConnection extends BaseCache {
    constructor() {
       super('redisConnection')

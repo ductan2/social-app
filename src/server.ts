@@ -11,16 +11,16 @@ import { Server } from 'socket.io'
 
 import { createClient } from 'redis';
 import { createAdapter } from '@socket.io/redis-adapter';
-
-
 import { routerMain } from '@routes/index.routes';
-
-import 'express-async-errors'
 import { config } from '@config/config';
 import { SocketIOPostHandler } from './sockets/post';
-import logger from '@config/logger';
 import { ErrorCustom, IErrorResponse } from '@interfaces/error.interface';
+import Logger from 'bunyan';
 
+
+
+import 'express-async-errors'
+const logger: Logger = config.createLogger('Server')
 
 export class SocialServer {
    private socialApp: Application
