@@ -1,0 +1,3 @@
+// Kéo các file *.test.ts ra để có thể test 
+// // đường link để test config trong jest 
+// các file có thể test năm ở đường dẫn như sau : src/test/*.test.ts

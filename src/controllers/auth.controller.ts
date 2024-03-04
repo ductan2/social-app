@@ -1,7 +1,7 @@
 
 import { IAuthDocument } from "@interfaces/auth.interface";
 import { BadRequestError, NotFoundError } from "@interfaces/error.interface";
-import { IUserDocument } from "@interfaces/user.interface";
+import { IResetPasswordParams, IUserDocument } from "@interfaces/user.interface";
 import { JoiValidation } from "@root/decorators/joi-validation.decorator";
 import { Helpers } from "@root/helpers";
 import { userCache } from "@root/redis/user.cache";
@@ -20,6 +20,12 @@ import { signinSchema } from "@root/schemes/signin.sheme";
 import { compare } from 'bcryptjs';
 import { userService } from "@services/user.service";
 import HTTP_STATUS from "http-status-codes";
+import publicIP from "ip";
+import moment from "moment";
+import { resetPasswordTemplate } from "@root/emails/templates/reset-password/reset-password";
+import { emailQueue } from "@root/queues/email.queue";
+import { emailSchema, passwordSchema } from "@root/schemes/password.scheme";
+import { forgotPasswordTemplate } from "@root/emails/templates/forgot-password/forgot-password";
 class AuthController {
    @JoiValidation(signupSchema)
    async register(req: Request, res: Response) {
@@ -56,7 +62,6 @@ class AuthController {
 
       const userJWT: string = AuthController.prototype.signupToken(authData, userObjectId);
       req.session = { jwt: userJWT }
-
       res.status(HTTP_STATUS.CREATED).json({ message: 'User created successfully', user: authData });
    }
    @JoiValidation(signinSchema)
@@ -67,7 +72,7 @@ class AuthController {
          throw new BadRequestError('Invalid credentials');
       }
       const user = await userService.getUserByAuthId(`${isUserExist._id}`);
-      const isPasswordMatch: boolean = await AuthController.prototype.comparePassword(password, isUserExist.password as string);
+      const isPasswordMatch: boolean = await authService.comparePassword(password, isUserExist.password as string);
       if (!isPasswordMatch) {
          throw new BadRequestError('Password is incorrect');
       }
@@ -83,11 +88,52 @@ class AuthController {
          createdAt: isUserExist.createdAt,
       } as IUserDocument;
 
+
       res.status(HTTP_STATUS.OK).json({ message: 'User logged in successfully', user: userDocument, token: userJWT });
    }
    async logout(req: Request, res: Response) {
       req.session = null;
       res.status(HTTP_STATUS.OK).json({ message: 'User logged out successfully', user: {}, token: '' });
+   }
+   @JoiValidation(emailSchema)
+   async forgotPassword(req: Request, res: Response) {
+      const { email } = req.body;
+      const userExist = await authService.getAuthByEmail(email);
+      if (!userExist) {
+         throw new NotFoundError('User not found');
+      }
+      const randomCharacter = await Helpers.generateRandomString();
+      await authService.updatePasswordResetToken(`${userExist._id}`, randomCharacter, Date.now() * 60 * 60 * 1000);
+      const resetLink = `${config.CLIENT_URL}/reset-password?token=${randomCharacter}`
+      const template = forgotPasswordTemplate.forgotPasswordTemplate(userExist.username, resetLink);
+      emailQueue.addEmailJob('forgotPassword', { to: userExist.email, subject: 'Reset password', html: template, text: 'Reset your password' })
+      res.status(HTTP_STATUS.OK).json({ message: 'Reset link sent successfully' });
+   }
+   @JoiValidation(passwordSchema)
+   async resetPassword(req: Request, res: Response) {
+      const { password, confirmPassword } = req.body;
+      const { token } = req.params;
+      if (password !== confirmPassword) {
+         throw new BadRequestError('Password does not match');
+      }
+      const userExist = await authService.getAuthByToken(`${token}`);
+      if (!userExist) {
+         throw new NotFoundError('User not found');
+      }
+      userExist.password = password;
+      userExist.passwordResetToken = undefined;
+      userExist.passwordResetExpires = undefined;
+      await userExist.save();
+      const templateParams: IResetPasswordParams = {
+         date: moment().format('DD/MM/YYYY HH:mm'),
+         email: userExist.email,
+         username: userExist.username,
+         ipaddress: publicIP.address()
+      } as IResetPasswordParams;
+      const template = resetPasswordTemplate.passwordResetTemplate(templateParams);
+      emailQueue.addEmailJob('forgotPassword', { to: userExist.email, subject: 'Password change', html: template, text: 'Confirm password' })
+      res.status(HTTP_STATUS.OK).json({ message: 'Password reset successfully' });
+
    }
 
    async currentUser(req: Request, res: Response) {
@@ -109,9 +155,7 @@ class AuthController {
 
 
    // service private methods
-   private async comparePassword(password: string, passwordHash: string): Promise<boolean> {
-      return compare(password, passwordHash);
-   }
+   
    private userData(data: IAuthDocument, userObjectId: ObjectId): IUserDocument {
       const { _id, username, email, uId, password, avatarColor } = data;
       return {
