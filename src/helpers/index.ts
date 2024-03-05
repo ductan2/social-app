@@ -1,11 +1,13 @@
 import crypto from 'crypto';
 export class Helpers {
    static firstLetterUppercase(str: string) {
+      // use this method for username
       return str.split(' ').map((c) => {
          return c.charAt(0).toUpperCase() + c.slice(1).toLocaleLowerCase();
       }).join(' ');
    }
    static lowerCase(str: string) {
+      // use this method for email
       return str.toLocaleLowerCase();
    }
    static generateRandomInteget(length: number) {
@@ -17,9 +19,10 @@ export class Helpers {
    }
    static parseJson(str: string) {
       try {
-         return JSON.parse(str);
+          JSON.parse(str);
       } catch (error) {
          return str;
       }
+      return JSON.parse(str);
    }
 }

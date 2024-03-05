@@ -3,6 +3,7 @@ import { authRouter } from "./auth.routes";
 import { serverAdapter } from "@root/queues/base.queue";
 import { postRouter } from "./post.routes";
 import { authMiddleware } from "@middlewares/auth.middleware";
+import { reactionRouter } from "./reaction.routes";
 
 const BASE_URL = '/api/v1'
 class RouterMain {
@@ -14,6 +15,7 @@ class RouterMain {
       this.router.use('/queues', serverAdapter.getRouter())
       this.router.use(`${BASE_URL}/auth`, authRouter.routes())
       this.router.use(`${BASE_URL}/posts`, authMiddleware.verifyToken, postRouter.routes())
+      this.router.use(`${BASE_URL}/reactions`, authMiddleware.verifyToken, reactionRouter.routes())
       return this.router;
    }
 }

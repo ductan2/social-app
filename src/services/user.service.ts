@@ -4,6 +4,9 @@ import mongoose from "mongoose";
 
 
 class UserService {
+
+   
+
    async addUserData(data: IUserDocument) {
       return UserModel.create(data)
    }
