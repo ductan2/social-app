@@ -5,7 +5,7 @@ import { IResetPasswordParams, IUserDocument } from "@interfaces/user.interface"
 import { JoiValidation } from "@root/decorators/joi-validation.decorator";
 import { Helpers } from "@root/helpers";
 import { userCache } from "@root/redis/user.cache";
-import { signupSchema } from "@root/schemes/signup.scheme";
+import { signupSchema } from "@root/schemas/signup.schema";
 import { authService } from "@services/auth.service";
 import { uploads } from "@utils/cloudinary";
 import { UploadApiResponse } from "cloudinary";
@@ -16,7 +16,7 @@ import { authQueue } from "@root/queues/auth.queue";
 import { userQueue } from "@root/queues/user.queue";
 import JWT from "jsonwebtoken";
 import { config } from "@config/config";
-import { signinSchema } from "@root/schemes/signin.sheme";
+import { signinSchema } from "@root/schemas/signin.shema";
 import { compare } from 'bcryptjs';
 import { userService } from "@services/user.service";
 import HTTP_STATUS from "http-status-codes";
@@ -24,7 +24,7 @@ import publicIP from "ip";
 import moment from "moment";
 import { resetPasswordTemplate } from "@root/emails/templates/reset-password/reset-password";
 import { emailQueue } from "@root/queues/email.queue";
-import { emailSchema, passwordSchema } from "@root/schemes/password.scheme";
+import { emailSchema, passwordSchema } from "@root/schemas/password.schema";
 import { forgotPasswordTemplate } from "@root/emails/templates/forgot-password/forgot-password";
 class AuthController {
    @JoiValidation(signupSchema)

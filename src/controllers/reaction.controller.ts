@@ -1,6 +1,6 @@
 import { IReactionDocument, IReactionJob } from "@interfaces/reaction.interface";
 import { JoiValidation } from "@root/decorators/joi-validation.decorator";
-import { addReactionSchema } from "@root/schemes/reaction.scheme";
+import { addReactionSchema } from "@root/schemas/reaction.schema";
 import { Request, Response } from "express";
 import { ObjectId } from 'mongodb';
 import HTTP_STATUS from "http-status-codes";
