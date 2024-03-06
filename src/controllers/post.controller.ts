@@ -1,6 +1,6 @@
 import { IPostDocument } from "@interfaces/post.interface";
 import { JoiValidation } from "@root/decorators/joi-validation.decorator";
-import { postSchema, postWithImageSchema } from "@root/schemes/post.scheme";
+import { postSchema, postWithImageSchema } from "@root/schemas/post.schema";
 import { Request, Response } from "express";
 import { ObjectId } from "mongodb";
 import HTTP_STATUS from "http-status-codes";

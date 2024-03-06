@@ -2,6 +2,7 @@ import { IGetPostsQuery, IPostDocument } from "@interfaces/post.interface";
 import { PostModel } from "@models/post.model";
 import { UserModel } from "@models/user.mode";
 
+
 class PostService {
    async createPostToDB(userId: string, data: IPostDocument) {
       const post = PostModel.create(data);
