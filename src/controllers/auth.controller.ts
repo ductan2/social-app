@@ -11,13 +11,11 @@ import { uploads } from "@utils/cloudinary";
 import { UploadApiResponse } from "cloudinary";
 import { Request, Response } from "express";
 import { ObjectId } from "mongodb";
-import { omit } from "lodash";
 import { authQueue } from "@root/queues/auth.queue";
 import { userQueue } from "@root/queues/user.queue";
 import JWT from "jsonwebtoken";
 import { config } from "@config/config";
 import { signinSchema } from "@root/schemas/signin.shema";
-import { compare } from 'bcryptjs';
 import { userService } from "@services/user.service";
 import HTTP_STATUS from "http-status-codes";
 import publicIP from "ip";
@@ -54,10 +52,9 @@ class AuthController {
       let userDataCache = AuthController.prototype.userData(authData, userObjectId);
       userDataCache.profilePicture = result.secure_url; // result.secure_url is the url of the uploaded image
       await userCache.saveUserToCache(`${userObjectId}`, uid, userDataCache);
-
       //add to database
-      omit(userDataCache, ['uId', 'username', 'email', 'password', 'avatarColor'])// remove sensitive data
-      authQueue.addAuthJob('addAuthToDB', { value: userDataCache })
+      // omit(userDataCache, ['uId', 'username', 'email', 'password', 'avatarColor'])// remove sensitive data
+      authQueue.addAuthJob('addAuthToDB', { value: authData })
       userQueue.addUserJob('addUserToDB', { value: userDataCache })
 
       const userJWT: string = AuthController.prototype.signupToken(authData, userObjectId);
@@ -151,7 +148,7 @@ class AuthController {
 
 
    }
-
+   
 
 
    // service private methods
@@ -194,12 +191,11 @@ class AuthController {
    }
    private signupToken(data: IAuthDocument, userObjectId: ObjectId) {
       return JWT.sign({
-         userId: data._id,
+         userId: userObjectId,
          uId: data.uId,
          email: data.email,
          username: data.username,
          avatarColor: data.avatarColor,
-         userObjectId: userObjectId
       }, `${config.JWT_SECRET}`, { expiresIn: config.JWT_EXPIRATION });
    }
 }

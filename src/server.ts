@@ -20,6 +20,7 @@ import Logger from 'bunyan';
 
 
 import 'express-async-errors'
+import { SocketIOFollowerObject } from './sockets/follower';
 const logger: Logger = config.createLogger('Server')
 
 export class SocialServer {
@@ -95,9 +96,10 @@ export class SocialServer {
    }
    private sockerIOConnection(io: Server) {
       const postSocketIO = new SocketIOPostHandler(io)
-
+      const followerSocketIO = new SocketIOFollowerObject(io)
 
       postSocketIO.listen()
+      followerSocketIO.listen()
    }
    private startHttpServer(httpServer: http.Server) {
       httpServer.listen(this.PORT, () => {
