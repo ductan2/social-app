@@ -2,7 +2,7 @@ import {  IFollowers } from "@interfaces/follower.interface";
 import { Server } from "socket.io";
 
 export let socketIOFollowerObject: Server;
-export class SocketIOFollowerObject {
+export class SocketIOFollowerHandler {
    private io: Server;
    constructor(io: Server) {
       this.io = io;

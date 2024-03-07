@@ -128,7 +128,15 @@ class AuthController {
          ipaddress: publicIP.address()
       } as IResetPasswordParams;
       const template = resetPasswordTemplate.passwordResetTemplate(templateParams);
-      emailQueue.addEmailJob('forgotPassword', { to: userExist.email, subject: 'Password change', html: template, text: 'Confirm password' })
+      const emailData =
+      {
+         to: userExist.email,
+         subject: 'Password change',
+         html: template,
+         text: 'Confirm password'
+      }
+
+      emailQueue.addEmailJob('forgotPassword', emailData)
       res.status(HTTP_STATUS.OK).json({ message: 'Password reset successfully' });
 
    }
@@ -148,11 +156,11 @@ class AuthController {
 
 
    }
-   
+
 
 
    // service private methods
-   
+
    private userData(data: IAuthDocument, userObjectId: ObjectId): IUserDocument {
       const { _id, username, email, uId, password, avatarColor } = data;
       return {

@@ -9,7 +9,6 @@ SendGridMail.setApiKey(config.SENDGRID_API_KEY!);
 const log: Logger = config.createLogger('EmailTransport');
 class EmailTransport {
    public async sendEmail(options: IEmailOptions) {
-      console.log(config.NODE_ENV)
       if (config.NODE_ENV === 'development') {
          await this.developmentEmailSender(options);
       }
@@ -40,7 +39,6 @@ class EmailTransport {
          });
          log.info(`Message sent: ${infoEmail.messageId}`);
       } catch (error) {
-         log.error("🚀 ~ EmailTransport ~ developmentEmailSender ~ error:", error)
          throw new BadRequestError('Error sending email');
       }
    }
