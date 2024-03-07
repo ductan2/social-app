@@ -84,9 +84,10 @@ export interface IUserJob {
 }
 
 export interface IEmailJob {
-  receiverEmail: string;
-  template: string;
+  html: string;
   subject: string;
+  text: string;
+  to: string;
 }
 export interface IEmailOptions {
   to: string;

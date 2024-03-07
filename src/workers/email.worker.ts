@@ -4,9 +4,10 @@ import { DoneCallback, Job } from "bull";
 import Logger from "bunyan";
 const log: Logger = config.createLogger('EmailWorker');
 class EmailWorker {
-   async addNotificationJob(job: Job, done: DoneCallback) {
+   async addNotificationEmail(job: Job, done: DoneCallback) {
       try {
          const { html, to, subject, text } = job.data;
+         console.log("🚀 ~ EmailWorker ~ addNotificationEmail ~ to:", to)
          await emailTransport.sendEmail({ html, to, subject, text });
          job.progress(100); // use this to update the progress of the job 
          done(null, job.data); 

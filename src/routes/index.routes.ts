@@ -6,6 +6,7 @@ import { authMiddleware } from "@middlewares/auth.middleware";
 import { reactionRouter } from "./reaction.routes";
 import { commentRouter } from "./comment.routes";
 import { followerRouter } from "./follower.routes";
+import { notificationRouter } from "./notification.routes";
 
 const BASE_URL = '/api/v1'
 class RouterMain {
@@ -20,7 +21,7 @@ class RouterMain {
       this.router.use(`${BASE_URL}/reactions`, authMiddleware.verifyToken, reactionRouter.routes())
       this.router.use(`${BASE_URL}/comments`, authMiddleware.verifyToken, commentRouter.routes())
       this.router.use(`${BASE_URL}`, authMiddleware.verifyToken, followerRouter.routes())
-
+      this.router.use(`${BASE_URL}/notification`, authMiddleware.verifyToken, notificationRouter.routes())
       return this.router;
    }
 }

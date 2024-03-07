@@ -1,13 +1,15 @@
-import { IEmailOptions } from "@interfaces/user.interface";
+import { IEmailJob } from "@interfaces/user.interface";
 import { BaseQueue } from "./base.queue";
 import { emailWorker } from "@root/workers/email.worker";
 
 class EmailQueue extends BaseQueue {
    constructor() {
       super('EmailQueue')
-      this.processJob('forgotPassword', 5, emailWorker.addNotificationJob)
+      this.processJob('forgotPassword', 5, emailWorker.addNotificationEmail)
+      this.processJob('commentsEmail', 5, emailWorker.addNotificationEmail);
+      this.processJob('followersEmail', 5, emailWorker.addNotificationEmail);
    }
-   async addEmailJob(name: string, data: IEmailOptions) {
+   async addEmailJob(name: string, data: IEmailJob) {
       this.addJob(name, data)
    }
 }
