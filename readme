@@ -1,213 +1,127 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { Request, Response } from 'express';
-import { authMock, authMockRequest, authMockResponse } from '../mock/auth.mock';
-import { authController } from '@controllers/auth.controller';
-import { ErrorCustom } from '@interfaces/error.interface';
-import { authService } from '@services/auth.service';
-import { UserCache } from '@root/redis/user.cache';
-import * as cloudinaryUploads from '@root/utils/cloudinary';
-jest.useFakeTimers();
-jest.mock('@queues/base.queue');
-jest.mock('@root/redis/user.cache');
-jest.mock('@queues/user.queue');
-jest.mock('@queues/auth.queue');
-jest.mock('@root/utils/cloudinary');
+> **Note**: This repo is no longer officially maintained as of Jan, 2023.
+> Feel free to use it, fork it and patch it for your own needs.
 
-describe('SignUp', () => {
-  beforeEach(() => {
-    jest.resetAllMocks();
-    jest.setTimeout(30000);
-  });
+## The node.js example app
 
-  afterEach(() => {
-    jest.clearAllMocks();
-    jest.clearAllTimers();
-  });
-  it('should throw an error if username length is less than minimum length', () => {
-    const req: Request = authMockRequest(
-      {},
-      {
-        username: 'ma',
-        email: 'manny@test.com',
-        password: 'qwerty',
-        avatarColor: 'red',
-        avatarImage: 'data:text/plain;base64,SGVsbG8sIFdvcmxkIQ=='
-      }
-    ) as Request;
-    const res: Response = authMockResponse();
-    authController.register(req, res).catch((error: ErrorCustom) => {
-      expect(error.statusCode).toEqual(400);
-      expect(error.serializedErrors().message).toEqual('Invalid username');
-    });
-  });
+[![CircleCI](https://img.shields.io/circleci/project/github/contentful/the-example-app.nodejs.svg)](https://circleci.com/gh/contentful/the-example-app.nodejs)
 
-  it('should throw an error if username length is greater than maximum length', () => {
-    const req: Request = authMockRequest(
-      {},
-      {
-        username: 'mathematics',
-        email: 'manny@test.com',
-        password: 'qwerty',
-        avatarColor: 'red',
-        avatarImage: 'data:text/plain;base64,SGVsbG8sIFdvcmxkIQ=='
-      }
-    ) as Request;
-    const res: Response = authMockResponse();
-    authController.register(req, res).catch((error: ErrorCustom) => {
-      expect(error.statusCode).toEqual(400);
-      expect(error.serializedErrors().message).toEqual('Invalid username');
-    });
-  });
+The node.js example app teaches the very basics of how to work with Contentful:
 
-  it('should throw an error if email is not valid', () => {
-    const req: Request = authMockRequest(
-      {},
-      {
-        username: 'Manny',
-        email: 'not valid',
-        password: 'qwerty',
-        avatarColor: 'red',
-        avatarImage: 'data:text/plain;base64,SGVsbG8sIFdvcmxkIQ=='
-      }
-    ) as Request;
-    const res: Response = authMockResponse();
+- consume content from the Contentful Delivery and Preview APIs
+- model content
+- edit content through the Contentful web app
 
-    authController.register(req, res).catch((error: ErrorCustom) => {
-      expect(error.statusCode).toEqual(400);
-      expect(error.serializedErrors().message).toEqual('Email must be valid');
-    });
-  });
+The app demonstrates how decoupling content from its presentation enables greater flexibility and facilitates shipping higher quality software more quickly.
 
-  it('should throw an error if email is not available', () => {
-    const req: Request = authMockRequest(
-      {},
-      { username: 'Manny', email: '', password: 'qwerty', avatarColor: 'red', avatarImage: 'data:text/plain;base64,SGVsbG8sIFdvcmxkIQ==' }
-    ) as Request;
-    const res: Response = authMockResponse();
-    authController.register(req, res).catch((error: ErrorCustom) => {
-      expect(error.statusCode).toEqual(400);
-      expect(error.serializedErrors().message).toEqual('Email is a required field');
-    });
-  });
+<a href="https://the-example-app-nodejs.herokuapp.com/" target="_blank"><img src="https://images.contentful.com/qz0n5cdakyl9/4GZmvrdodGM6CksMCkkAEq/700a527b8203d4d3ccd3c303c5b3e2aa/the-example-app.png" alt="Screenshot of the example app"/></a>
 
-  it('should throw an error if password is not available', () => {
-    const req: Request = authMockRequest(
-      {},
-      {
-        username: 'Manny',
-        email: 'manny@test.com',
-        password: '',
-        avatarColor: 'red',
-        avatarImage: 'data:text/plain;base64,SGVsbG8sIFdvcmxkIQ=='
-      }
-    ) as Request;
-    const res: Response = authMockResponse();
-    authController.register(req, res).catch((error: ErrorCustom) => {
-      expect(error.statusCode).toEqual(400);
-      expect(error.serializedErrors().message).toEqual('Password is a required field');
-    });
-  });
+You can see a hosted version of `The node.js example app` on <a href="https://the-example-app-nodejs.contentful.com/" target="_blank">Heroku</a>.
 
-  it('should throw an error if password length is less than minimum length', () => {
-    const req: Request = authMockRequest(
-      {},
-      {
-        username: 'Manny',
-        email: 'manny@test.com',
-        password: 'ma',
-        avatarColor: 'red',
-        avatarImage: 'data:text/plain;base64,SGVsbG8sIFdvcmxkIQ=='
-      }
-    ) as Request;
-    const res: Response = authMockResponse();
-    authController.register(req, res).catch((error: ErrorCustom) => {
-      expect(error.statusCode).toEqual(400);
-      expect(error.serializedErrors().message).toEqual('Invalid password');
-    });
-  });
+## What is Contentful?
 
-  it('should throw an error if password length is greater than maximum length', () => {
-    const req: Request = authMockRequest(
-      {},
-      {
-        username: 'Manny',
-        email: 'manny@test.com',
-        password: 'mathematics1',
-        avatarColor: 'red',
-        avatarImage: 'data:text/plain;base64,SGVsbG8sIFdvcmxkIQ=='
-      }
-    ) as Request;
-    const res: Response = authMockResponse();
-    authController.register(req, res).catch((error: ErrorCustom) => {
-      expect(error.statusCode).toEqual(400);
-      expect(error.serializedErrors().message).toEqual('Invalid password');
-    });
-  });
+[Contentful](https://www.contentful.com) provides a content infrastructure for digital teams to power content in websites, apps, and devices. Unlike a CMS, Contentful was built to integrate with the modern software stack. It offers a central hub for structured content, powerful management and delivery APIs, and a customizable web app that enable developers and content creators to ship digital products faster.
 
-  it('should throw unauthorize error is user already exist', () => {
-    const req: Request = authMockRequest(
-      {},
-      {
-        username: 'Manny',
-        email: 'manny@test.com',
-        password: 'qwerty',
-        avatarColor: 'red',
-        avatarImage: 'data:text/plain;base64,SGVsbG8sIFdvcmxkIQ=='
-      }
-    ) as Request;
-    const res: Response = authMockResponse();
+## Requirements
 
-    jest.spyOn(authService, 'checkUser').mockResolvedValue(authMock as any);
-    authController.register(req, res).catch((error: ErrorCustom) => {
-      expect(error.statusCode).toEqual(400);
-      expect(error.serializedErrors().message).toEqual('Invalid credentials');
-    });
-  });
-  it('should throw an error if username is not available', () => {
-    const req: Request = authMockRequest(
-      {},
-      {
-        username: '',
-        email: 'manny@test.com',
-        password: 'qwerty',
-        avatarColor: 'red',
-        avatarImage: 'data:text/plain;base64,SGVsbG8sIFdvcmxkIQ=='
-      }
-    ) as Request;
-    const res: Response = authMockResponse();
+* Node 8
+* Git
+* Contentful CLI (only for write access)
 
-    authController.register(req, res).catch((error: ErrorCustom) => {
-      expect(error.statusCode).toEqual(400);
-      expect(error.serializedErrors().message).toEqual('Username is a required field');
-    });
-  });
+Without any changes, this app is connected to a Contentful space with read-only access. To experience the full end-to-end Contentful experience, you need to connect the app to a Contentful space with read _and_ write access. This enables you to see how content editing in the Contentful web app works and how content changes propagate to this app.
 
-  
+## Common setup
 
-  it('should set session data for valid credentials and send correct json response', async () => {
-    const req: Request = authMockRequest(
-      {},
-      {
-        username: 'nguye12123n',
-        email: 'manny@test.com',
-        password: 'qwerty',
-        avatarColor: 'red',
-        avatarImage: 'data:text/plain;base64,SGVsbG8sIFdvcmxkIQ=='
-      }
-    ) as Request;
-    const res: Response = authMockResponse();
+Clone the repo and install the dependencies.
 
-    jest.spyOn(authService, 'checkUser').mockResolvedValue(null as any);
-    const userSpy = jest.spyOn(UserCache.prototype, 'saveUserToCache');
-    console.log("🚀 ~ it ~ userSpy:", userSpy)
-    jest.spyOn(cloudinaryUploads, 'uploads').mockImplementation((): any => Promise.resolve({ version: '1234737373', public_id: '123456' }));
-      
-    await authController.register(req, res);
-    expect(req.session?.jwt).toBeDefined();
-    expect(res.json).toHaveBeenCalledWith({
-      message: 'User created successfully',
-      user: userSpy.mock.calls[0][2],
-      token: req.session?.jwt
-    });
-  },30000);
-});
+```bash
+git clone https://github.com/contentful/the-example-app.nodejs.git
+cd the-example-app.nodejs
+```
+
+```bash
+npm install
+```
+
+## Steps for read-only access
+
+To start the express server, run the following
+
+```bash
+npm run start:dev
+```
+
+Open [http://localhost:5000](http://localhost:5000) and take a look around.
+
+
+## Steps for read and write access (recommended)
+
+Step 1: Install the [Contentful CLI](https://www.npmjs.com/package/contentful-cli)
+
+Step 2: Login to Contentful through the CLI. It will help you to create a [free account](https://www.contentful.com/sign-up/) if you don't have one already.
+```
+contentful login
+```
+Step 3: Create a new space
+```
+contentful space create --name 'My space for the example app'
+```
+Step 4: [Seed](https://github.com/contentful/contentful-cli/tree/master/docs/space/seed) the new space with the example content model [`the-example-app`](https://github.com/contentful/content-models/tree/master/the-example-app). Replace the `SPACE_ID` with the id returned from the create command executed in step 3
+```
+contentful space seed -s '<SPACE_ID>' -t the-example-app
+```
+Step 5: Head to the Contentful web app's API section and grab `SPACE_ID`, `DELIVERY_ACCESS_TOKEN`, `PREVIEW_ACCESS_TOKEN`.
+
+Step 6: Open `variables.env` and inject your credentials so it looks like this
+
+```
+NODE_ENV=development
+CONTENTFUL_SPACE_ID=<SPACE_ID>
+CONTENTFUL_DELIVERY_TOKEN=<DELIVERY_ACCESS_TOKEN>
+CONTENTFUL_PREVIEW_TOKEN=<PREVIEW_ACCESS_TOKEN>
+PORT=5000
+```
+
+Step 7: To start the express server, run the following
+```bash
+npm run start:dev
+```
+Final Step:
+
+Open [http://localhost:5000?editorial_features=enabled](http://localhost:5000?editorial_features=enabled) and take a look around. This URL flag adds an “Edit” button in the app on every editable piece of content which will take you back to Contentful web app where you can make changes. It also adds “Draft” and “Pending Changes” status indicators to all content if relevant.
+
+## Deploy to Heroku
+You can also deploy this app to Heroku:
+
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
+
+
+## Use Docker
+You can also run this app as a Docker container:
+
+Step 1: Clone the repo
+
+```bash
+git clone https://github.com/contentful/the-example-app.nodejs.git
+```
+
+Step 2: Build the Docker image
+
+```bash
+docker build -t the-example-app.nodejs .
+```
+
+Step 3: Run the Docker container locally:
+
+```bash
+docker run -p 5000:5000 -d the-example-app.nodejs
+```
+
+If you created your own Contentful space, you can use it by overriding the following environment variables:
+
+```bash
+docker run -p 5000:5000 \
+  -e CONTENTFUL_SPACE_ID=<SPACE_ID> \
+  -e CONTENTFUL_DELIVERY_TOKEN=<DELIVERY_ACCESS_TOKEN> \
+  -e CONTENTFUL_PREVIEW_TOKEN=<PREVIEW_ACCESS_TOKEN> \
+  -d the-example-app.nodejs
+```
