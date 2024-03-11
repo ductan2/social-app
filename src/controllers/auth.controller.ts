@@ -142,7 +142,7 @@ class AuthController {
    }
 
    async currentUser(req: Request, res: Response) {
-      const cachedUser = await userCache.getUserFromaCache(`${req.currentUser?.userId}`);
+      const cachedUser = await userCache.getUserFromCache(`${req.currentUser?.userId}`);
       const userExist = cachedUser?._id ? cachedUser : await userService.getUserById(`${req.currentUser?.userId}`);
       if (!userExist) {
          throw new NotFoundError('User not found');

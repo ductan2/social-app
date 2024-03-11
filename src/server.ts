@@ -23,6 +23,8 @@ import 'express-async-errors'
 import { SocketIOFollowerHandler } from './sockets/follower';
 import { SocketIOUserHandler } from './sockets/user';
 import { SocketIONotificationHandler } from './sockets/notification';
+import { SocketIOImageHandler } from './sockets/image';
+import { SocketIOChatHandler } from './sockets/chat';
 const logger: Logger = config.createLogger('Server')
 
 export class SocialServer {
@@ -101,10 +103,14 @@ export class SocialServer {
       const followerSocketIO = new SocketIOFollowerHandler(io)
       const userSocketIO = new SocketIOUserHandler(io)
       const notificationSocketIO = new SocketIONotificationHandler();
+      const chatSocketIO = new SocketIOChatHandler(io)
+      const imageSocketIO = new SocketIOImageHandler();
+      chatSocketIO.listen()
       userSocketIO.listen()
       postSocketIO.listen()
       followerSocketIO.listen()
       notificationSocketIO.listen(io)
+      imageSocketIO.listen(io)
 
    }
    private startHttpServer(httpServer: http.Server) {

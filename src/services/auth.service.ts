@@ -1,6 +1,6 @@
 
 import { Helpers } from "@root/helpers";
-import { ISignUpData } from "../interfaces/auth.interface";
+import {  ISignUpData } from "../interfaces/auth.interface";
 import { AuthModel } from "@models/auth.model";
 import { compare } from "bcryptjs";
 
@@ -18,12 +18,11 @@ class AuthService {
    async checkUser(username: string) {
       return AuthModel
          .findOne({ $or: [{ email: Helpers.lowerCase(username) }, { username: Helpers.firstLetterUppercase(username) }] })
-         .lean();
    }
-    async comparePassword(password: string, passwordHash: string): Promise<boolean> {
+   async comparePassword(password: string, passwordHash: string): Promise<boolean> {
       return compare(password, passwordHash);
    }
-   
+
    async getAuthByEmail(email: string) {
       return AuthModel.findOne({ email: Helpers.lowerCase(email) }).lean();
    }
