@@ -7,7 +7,10 @@ class UserQueue extends BaseQueue {
    constructor() {
       super('UserQueue')
       this.processJob('addUserToDB', 5, userWorker.addUserToDB)
-      this.processJob('blockUserToDB', 5, userWorker.blockUser)
+      this.processJob('blockUserInDB', 5, userWorker.blockUser)
+      this.processJob('updateBasicInfoInDB', 5, userWorker.updateUserInfo)
+      this.processJob('updateSocialLinksInDB', 5, userWorker.updateSocialLinks)
+      this.processJob('updateNotificationSettings', 5, userWorker.updateNotificationSettings)
       // createUser is the value of the name parameter in the addJob method in the UserController
       // check controller user to see the createUser value
 

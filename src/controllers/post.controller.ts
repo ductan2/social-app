@@ -87,6 +87,11 @@ class PostController {
       })
       postQueue.addQueueJob('addPostQueueJob', { userId: req.currentUser!.userId, value: createdPost })
       // call image to database 
+      imageQueue.addImageJob('addImageToDB', {
+         key: `${req.currentUser!.userId}`,
+         imgId: result.public_id,
+         imgVersion: result.version.toString()
+      })
       res.status(HTTP_STATUS.CREATED).json({ message: 'Post created with image successfully', post: createdPost });
 
    }
@@ -197,7 +202,7 @@ class PostController {
       if (image) {
          imageQueue.addImageJob('addImageToDB', {
             key: `${req.currentUser!.userId}`,
-            imgId: result.public_ida,
+            imgId: result.public_id,
             imgVersion: result.version.toString()
          });
       }

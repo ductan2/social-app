@@ -21,7 +21,7 @@ class ReactionService {
          updateReactionObject = omit(reactionObject, ['_id'])
       }
       const updatedReaction: [IUserDocument, IReactionDocument, IPostDocument] = await Promise.all([
-         userCache.getUserFromaCache(`${userTo}`) as unknown as IUserDocument,
+         userCache.getUserFromCache(`${userTo}`) as unknown as IUserDocument,
          ReactionModel.replaceOne({ postId, type: previousReaction, username }, updateReactionObject, { upsert: true }) as unknown as IReactionDocument,
          PostModel.findOneAndUpdate({ _id: postId }, {
             $inc: {

@@ -18,7 +18,7 @@ class CommentService {
          PostModel.findByIdAndUpdate(postId, {
             $inc: { commentsCount: 1 }
          }, { new: true }) as unknown as IPostDocument,
-         userCache.getUserFromaCache(userTo)
+         userCache.getUserFromCache(userTo)
       ])
       console.log(user, userTo, userFrom);
       //send notification to user

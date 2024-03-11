@@ -19,10 +19,25 @@ export class Helpers {
    }
    static parseJson(str: string) {
       try {
-          JSON.parse(str);
+         JSON.parse(str);
       } catch (error) {
          return str;
       }
       return JSON.parse(str);
+   }
+   static isDataURL(value: string): boolean {
+      const dataUrlRegex = /^\s*data:([a-z]+\/[a-z0-9-+.]+(;[a-z-]+=[a-z0-9-]+)?)?(;base64)?,([a-z0-9!$&',()*+;=\-._~:@\\/?%\s]*)\s*$/i;
+      return dataUrlRegex.test(value);
+   }
+   static shuffle(array: string[]) {
+      // ? shuffle the array
+      for (let i = array.length - 1; i > 0; i--) {
+         const j = Math.floor(Math.random() * (i + 1));
+         [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+   }
+   static escapeRegex(text: string) {
+      return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
    }
 }

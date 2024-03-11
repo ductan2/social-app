@@ -1,7 +1,6 @@
 
 import { config } from "@config/config";
-import { followerCache } from "@root/redis/follower.cache";
-import { authService } from "@services/auth.service";
+
 import { userService } from "@services/user.service";
 import { DoneCallback, Job } from "bull";
 import Logger from "bunyan";
@@ -23,16 +22,50 @@ class UserWorker {
       try {
          const { userId, blockedId, type } = job.data
          if (type === 'block') {
-            await userService.blockUserToDB(userId, blockedId)
+            await userService.blockUserInDB(userId, blockedId)
          }
          else {
-            await userService.unBlockUserToDB(userId, blockedId)
+            await userService.unblockUserInDB(userId, blockedId)
          }
          job.progress(100)
          done(null, job.data)
       } catch (error) {
          log.error(error)
          done(error as Error)
+      }
+   }
+   async updateUserInfo(job: Job, done: DoneCallback): Promise<void> {
+      try {
+         const { key, value } = job.data;
+         await userService.updateUserInfo(key, value);
+         job.progress(100);
+         done(null, job.data);
+      } catch (error) {
+         log.error(error);
+         done(error as Error);
+      }
+   }
+
+   async updateSocialLinks(job: Job, done: DoneCallback): Promise<void> {
+      try {
+         const { key, value } = job.data;
+         await userService.updateSocialLinks(key, value);
+         job.progress(100);
+         done(null, job.data);
+      } catch (error) {
+         log.error(error);
+         done(error as Error);
+      }
+   }
+   async updateNotificationSettings(job: Job, done: DoneCallback): Promise<void> {
+      try {
+         const { key, value } = job.data;
+         await userService.updateNotificationSettings(key, value);
+         job.progress(100);
+         done(null, job.data);
+      } catch (error) {
+         log.error(error);
+         done(error as Error);
       }
    }
 }
