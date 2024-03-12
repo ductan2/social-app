@@ -10,6 +10,7 @@ import { notificationRouter } from "./notification.routes";
 import { imageRouter } from "./image.routes";
 import { chatRouter } from "./chat.routes";
 import { userRouter } from "./user.routes";
+import { healthRoutes } from "./healthy.routes";
 
 const BASE_URL = '/api/v1'
 class RouterMain {
@@ -18,6 +19,10 @@ class RouterMain {
       this.router = Router();
    }
    public routes() {
+      this.router.use('', healthRoutes.health());
+      this.router.use('', healthRoutes.env());
+      this.router.use('', healthRoutes.instance());
+      this.router.use('', healthRoutes.fiboRoutes());
       this.router.use('/queues', serverAdapter.getRouter())
       this.router.use(`${BASE_URL}/auth`, authRouter.routes())
       this.router.use(`${BASE_URL}/posts`, authMiddleware.verifyToken, postRouter.routes())

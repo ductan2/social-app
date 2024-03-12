@@ -1,13 +1,13 @@
 import { IPostDocument } from "@interfaces/post.interface";
 import { JoiValidation } from "@root/decorators/joi-validation.decorator";
-import { postSchema, postWithImageSchema } from "@root/schemas/post.schema";
+import { postSchema, postWithImageSchema, postWithVideoSchema } from "@root/schemas/post.schema";
 import { Request, Response } from "express";
 import { ObjectId } from "mongodb";
 import HTTP_STATUS from "http-status-codes";
 import { postCache } from "@root/redis/post.cache";
 import { socketIOPostObject } from "@root/sockets/post";
 import { postQueue } from "@root/queues/post.queue";
-import { uploads } from "@utils/cloudinary";
+import { uploadVideo, uploads } from "@utils/cloudinary";
 import { BadRequestError } from "@interfaces/error.interface";
 import { postService } from "@services/post.service";
 import { UploadApiResponse } from "cloudinary";
@@ -154,6 +154,46 @@ class PostController {
       }
       res.status(HTTP_STATUS.OK).json({ message: 'Post with image updated successfully' });
    }
+   @JoiValidation(postWithVideoSchema)
+   public async createPostWithVideo(req: Request, res: Response): Promise<void> {
+      const { post, bgColor, privacy, gifUrl, profilePicture, feelings, video } = req.body;
+
+      const result: UploadApiResponse = (await uploadVideo(video)) as UploadApiResponse;
+      if (!result?.public_id) {
+         throw new BadRequestError(result.message);
+      }
+
+      const postObjectId: ObjectId = new ObjectId();
+      const createdPost: IPostDocument = {
+         _id: postObjectId,
+         userId: req.currentUser!.userId,
+         username: req.currentUser!.username,
+         email: req.currentUser!.email,
+         avatarColor: req.currentUser!.avatarColor,
+         profilePicture,
+         post,
+         bgColor,
+         feelings,
+         privacy,
+         gifUrl,
+         commentsCount: 0,
+         imgVersion: '',
+         imgId: '',
+         videoId: result.public_id,
+         videoVersion: result.version.toString(),
+         createdAt: new Date(),
+         reactions: { like: 0, love: 0, happy: 0, sad: 0, wow: 0, angry: 0 }
+      } as IPostDocument;
+      socketIOPostObject.emit('add post', createdPost);
+      await postCache.savePostToCache({
+         key: postObjectId,
+         currentUserId: `${req.currentUser!.userId}`,
+         uId: `${req.currentUser!.uId}`,
+         createdPost
+      });
+      postQueue.addQueueJob('addPostToDB', { key: req.currentUser!.userId, value: createdPost });
+      res.status(HTTP_STATUS.CREATED).json({ message: 'Post created with video successfully' });
+   }
    private async handleUpdatePost(req: Request): Promise<void> {
       const { post, bgColor, feelings, privacy, gifUrl, imgVersion, imgId, profilePicture, videoId, videoVersion } = req.body;
       const { postId } = req.params;
@@ -207,6 +247,16 @@ class PostController {
          });
       }
       return result;
+   }
+   public async getPostsWithVideos(req: Request, res: Response): Promise<void> {
+      const { page } = req.params;
+      const skip: number = (parseInt(page) - 1) * PAGE_SIZE;
+      const limit: number = PAGE_SIZE * parseInt(page);
+      const newSkip: number = skip === 0 ? skip : skip + 1;
+      let posts: IPostDocument[] = [];
+      const cachedPosts: IPostDocument[] = await postCache.getPostsWithVideosFromCache('post', newSkip, limit);
+      posts = cachedPosts.length ? cachedPosts : await postService.getPosts({ videoId: '$ne' }, skip, limit, { createdAt: -1 });
+      res.status(HTTP_STATUS.OK).json({ message: 'All posts with videos', posts });
    }
 }
 export const postController = new PostController();

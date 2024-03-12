@@ -16,9 +16,7 @@ import { config } from '@config/config';
 import { SocketIOPostHandler } from './sockets/post';
 import { ErrorCustom, IErrorResponse } from '@interfaces/error.interface';
 import Logger from 'bunyan';
-
-
-
+import apiStats from 'swagger-stats'
 import 'express-async-errors'
 import { SocketIOFollowerHandler } from './sockets/follower';
 import { SocketIOUserHandler } from './sockets/user';
@@ -36,6 +34,7 @@ export class SocialServer {
    public start() {
       this.securityMiddleware(this.socialApp)
       this.standardMiddleware(this.socialApp)
+      this.apiMonitor(this.socialApp)
       this.routeMiddleware(this.socialApp)
       this.globalErrorHandler(this.socialApp)
       this.startServer(this.socialApp)
@@ -59,6 +58,11 @@ export class SocialServer {
       }))
 
 
+   }
+   private apiMonitor(app: Application) {
+      app.use(apiStats.getMiddleware({
+         uriPath: '/api-monitor',
+      }))
    }
    private standardMiddleware(app: Application) {
       app.use(compression())

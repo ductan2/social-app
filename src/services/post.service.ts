@@ -14,6 +14,9 @@ class PostService {
       if (query?.imgId && query?.gifUrl) {
          postQuery = { $or: [{ imgId: { $ne: '' } }, { gifUrl: { $net: '' } }] };
       }
+      else if (query?.videoId) {
+         postQuery = { videoId: { $ne: '' } }
+      }
       else postQuery = query
 
       const posts = await PostModel.aggregate([

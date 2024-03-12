@@ -4,7 +4,8 @@
    "description": "",
    "main": "index.js",
    "scripts": {
-      "start": "NODE_ENV=production pm2 start ./build/src/app.js -i 5 --attach --watch | ./node_modules/.bin/bunyan",
+      "start": "set NODE_ENV=production && pm2 start ./build/src/app.js -i 5 --attach --watch |  npx bunyan",
+      "start:dev": "set NODE_ENV=production && pm2 start src/app.ts -i 5 --attach --watch | npx bunyan",
       "stop": "pm2 stop all",
       "delete": "pm2 delete all",
       "dev": "nodemon -r tsconfig-paths/register src/app.ts | npx bunyan",
@@ -14,8 +15,8 @@
       "prettier:fix": "prettier --write 'src/**/*.{ts,json}'",
       "test": "jest --coverage=true -w=1 --forceExit --detectOpenHandles --watchAll=false",
       "build": "tsc --project tsconfig.json && tsc-alias -p tsconfig.json",
-      "seeds:dev": "npx ts-node src/seeds.ts",
-      "seeds:prod": "npx ts-node ./build/src/seeds.js"
+      "seeds:dev": "npx ts-node src/seed.ts",
+      "seeds:prod": "npx ts-node ./build/src/seed.js"
    },
    "keywords": [],
    "author": "",
@@ -51,10 +52,11 @@
       "mongoose": "^7.0.0",
       "nodemailer": "^6.9.1",
       "nodemon": "^3.1.0",
+      "pm2": "^5.3.1",
       "redis": "^4.6.5",
       "redis-commander": "^0.8.0",
       "socket.io": "^4.6.1",
-      "swagger-stats": "^0.99.5",
+      "swagger-stats": "^0.99.7",
       "typescript": "^4.9.5",
       "typescript-transform-paths": "^3.4.6"
    },

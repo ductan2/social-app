@@ -164,6 +164,34 @@ class PostCache extends BaseCache {
          throw new InternalServerError(`Error while getting posts image from cache ==> ${error}`)
       }
    }
+   public async getPostsWithVideoFromCache(key: string = 'posts', start: number, end: number) {
+      try {
+         if (!this.client.isOpen) {
+            await this.client.connect();
+         }
+         const posts: string[] = await this.client.ZRANGE(key, start, end) as unknown as string[]; // auto REV:true means reverse order
+         const multi = this.client.multi();
+
+         for (const value of posts) {
+            multi.HGETALL(`posts:${value}`);
+         }
+         const result: any = await multi.exec();
+         const postsVideoArray: IPostDocument[] = [];
+         for (const res of result as IPostDocument[]) {
+            if ((res.videoId && res.videoVersion)) {
+               res.commentsCount = Helpers.parseJson(`${res.commentsCount}`) as number;
+               res.reactions = Helpers.parseJson(`${res.reactions}`);
+               res.createdAt = new Date(Helpers.parseJson(`${res.createdAt}`));
+               postsVideoArray.push(res);
+            }
+         }
+         return postsVideoArray;
+
+      } catch (error) {
+         log.error(`Error while getting posts image from cache ==> ${error}`)
+         throw new InternalServerError(`Error while getting posts image from cache ==> ${error}`)
+      }
+   }
    public async getTotalUserPostInCache(uId: string) {
       try {
          if (!this.client.isOpen) {
@@ -229,6 +257,33 @@ class PostCache extends BaseCache {
       } catch (error) {
          log.error(error);
          throw new InternalServerError('Error while updating post in cache ==>' + error);
+      }
+   }
+   public async getPostsWithVideosFromCache(key: string, start: number, end: number): Promise<IPostDocument[]> {
+      try {
+         if (!this.client.isOpen) {
+            await this.client.connect();
+         }
+
+         const reply: string[] = await this.client.ZRANGE(key, start, end);
+         const multi: ReturnType<typeof this.client.multi> = this.client.multi();
+         for (const value of reply) {
+            multi.HGETALL(`posts:${value}`);
+         }
+         const replies: any = (await multi.exec());
+         const postWithVideos: IPostDocument[] = [];
+         for (const post of replies as IPostDocument[]) {
+            if (post.videoId && post.videoVersion) {
+               post.commentsCount = Helpers.parseJson(`${post.commentsCount}`) as number;
+               post.reactions = Helpers.parseJson(`${post.reactions}`) as IReactions;
+               post.createdAt = new Date(Helpers.parseJson(`${post.createdAt}`)) as Date;
+               postWithVideos.push(post);
+            }
+         }
+         return postWithVideos;
+      } catch (error) {
+         log.error(error);
+         throw new InternalServerError('Error when get post video.');
       }
    }
 }
