@@ -32,7 +32,7 @@ class FollowerService {
             }
          }
       ])
-      const response: [BulkWriteResult, IUserDocument | null] = await Promise.all([users, userCache.getUserFromaCache(followingId)]);
+      const response: [BulkWriteResult, IUserDocument | null] = await Promise.all([users, userCache.getUserFromCache(followingId)]);
       if (response[1]?.notifications.follows && followerId !== followerId) {
          const notificationModel: INotificationDocument = new NotificationModel();
          const notifications = await notificationModel.insertNotification({

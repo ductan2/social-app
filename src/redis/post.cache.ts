@@ -99,6 +99,31 @@ class PostCache extends BaseCache {
          throw new InternalServerError(`Error while getting posts from cache ==> ${error}`)
       }
    }
+   public async getUserPostsFromCache(key: string, uId: number): Promise<IPostDocument[]> {
+      try {
+         if (!this.client.isOpen) {
+            await this.client.connect();
+         }
+
+         const reply: string[] = await this.client.ZRANGE(key, uId, uId);
+         const multi: ReturnType<typeof this.client.multi> = this.client.multi();
+         for (const value of reply) {
+            multi.HGETALL(`posts:${value}`);
+         }
+         const replies: any = (await multi.exec());
+         const postReplies: IPostDocument[] = [];
+         for (const post of replies as IPostDocument[]) {
+            post.commentsCount = Helpers.parseJson(`${post.commentsCount}`) as number;
+            post.reactions = Helpers.parseJson(`${post.reactions}`) as IReactions;
+            post.createdAt = new Date(Helpers.parseJson(`${post.createdAt}`)) as Date;
+            postReplies.push(post);
+         }
+         return postReplies;
+      } catch (error) {
+         log.error(error);
+         throw new InternalServerError('Error while getting user posts from cache ==> ' + error);
+      }
+   }
    public async getTotalPostsCount(key: string = 'posts') {
       try {
          if (!this.client.isOpen) {

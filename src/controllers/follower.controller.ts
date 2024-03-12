@@ -19,8 +19,8 @@ class FollowerController {
       if (followerId === req.currentUser?.userId) {
          throw new BadRequestError('You cannot follow yourself');
       }
-      const cacheFollowers = userCache.getUserFromaCache(followerId);
-      const cacheFollowing = userCache.getUserFromaCache(req.currentUser?.userId!);
+      const cacheFollowers = userCache.getUserFromCache(followerId);
+      const cacheFollowing = userCache.getUserFromCache(req.currentUser?.userId!);
       const response: [IUserDocument, IUserDocument] = await Promise.all([cacheFollowers, cacheFollowing]);
       if (!response[0]._id || !response[1]._id) {
          throw new BadRequestError('User not found');
@@ -49,8 +49,8 @@ class FollowerController {
       if (followerId === followingId) {
          throw new BadRequestError('You cannot remove yourself as a follower');
       }
-      const cacheFollowers = await userCache.getUserFromaCache(followerId);
-      const cacheFollowing = await userCache.getUserFromaCache(followingId);
+      const cacheFollowers = await userCache.getUserFromCache(followerId);
+      const cacheFollowing = await userCache.getUserFromCache(followingId);
       if (!cacheFollowers._id || !cacheFollowing._id) {
          throw new BadRequestError('User not found');
       }
@@ -85,7 +85,7 @@ class FollowerController {
       }
       await FollowerController.prototype.updateBlockedUser(userBlockId, req.currentUser?.userId!, 'block');
 
-      userQueue.addUserJob('blockUserToDB', {
+      userQueue.addUserJob('blockUserInDB', {
          userId: req.currentUser?.userId, blockedId: userBlockId, type: 'block'
       })
       res.status(HTTP_STATUS.OK).json({ message: 'User blocked successfully' });
@@ -96,7 +96,7 @@ class FollowerController {
          throw new BadRequestError('You cannot unblock yourself');
       }
       await FollowerController.prototype.updateBlockedUser(userBlockId, req.currentUser?.userId!, 'unblock');
-      userQueue.addUserJob('blockUserToDB', {
+      userQueue.addUserJob('blockUserInDB', {
          userId: req.currentUser?.userId, blockedId: userBlockId, type: 'unblock'
       })
       res.status(HTTP_STATUS.OK).json({ message: 'User blocked successfully' });

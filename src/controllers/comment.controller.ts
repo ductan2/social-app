@@ -6,7 +6,10 @@ import { ObjectId } from 'mongodb';
 import HTTP_STATUS from "http-status-codes";
 import { commentService } from "@services/comment.service";
 import mongoose from "mongoose";
+import { JoiValidation } from "@root/decorators/joi-validation.decorator";
+import { addCommentSchema } from "@root/schemas/comment.schema";
 class CommentController {
+   @JoiValidation(addCommentSchema)
    public async createComment(req: Request, res: Response) {
       const { userTo, postId, profilePicture, comment } = req.body;
       const commentObjectId: ObjectId = new ObjectId();
