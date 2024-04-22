@@ -138,7 +138,7 @@ Make sure mongodb and redis are both running on your local machine.
 ![alt](https://res.cloudinary.com/dyamr9ym3/image/upload/v1662499152/github_readme_images/Screenshot_2022-09-06_at_11.18.49_PM_iqxk9u.png)
 
 ## AWS Infrastructure Setup with Terraform
-- Make sure to uncomment this line `sameSite: 'none'` inside `setupServer.ts` file.
+- Make sure to uncomment this line `sameSite: 'none'` inside `server.ts` file.
 - Install [terraform](https://www.terraform.io/downloads)
 - Terraform stores state about your managed infrastructure and configuration. This state is used by Terraform to map real world resources to your configuration, keep track of metadata, and to improve performance for large infrastructures.
 - This state is stored by default in a local file named "terraform.tfstate", but it can also be stored remotely, which works better in a team environment.
